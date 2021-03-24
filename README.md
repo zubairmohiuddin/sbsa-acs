@@ -34,7 +34,6 @@ A few tests are executed by running the SBSA ACS Linux application which in turn
   - For details on the Design of the SBSA ACS, see [Validation Methodology Document](docs/Arm_SBSA_Architecture_Compliance_Validation_Methodology.pdf).
   - For information about the test coverage scenarios that are implemented in the current release of ACS and the scenarios that are   planned for the future releases, see [Testcase checklist](docs/testcase-checklist.md).
 
-
 ## SBSA ACS Linux kernel module
 To enable the export of a few kernel APIs that are necessary for PCIe and IOMMU tests, Linux kernel module and a kernel patch file are required. These files are available at [linux-arm.org/git](http://www.linux-arm.org/git?p=linux-acs.git).
 
@@ -153,6 +152,11 @@ On an Emulation platform where secondary storage is not available, perform the f
 ## Linux OS-based tests
 Certain PCIe and IOMMU tests require Linux operating system with kernel version 4.10 or above.
 The procedure to build and run these tests is described in [SBSA ACS User Guide](docs/Arm_SBSA_Architecture_Compliance_User_Guide.pdf).
+
+## SBSA ACS Baremetal Reference Code
+Baremetal reference code aligning to SBSA ACS RELv3.0 is below
+  - [Baremetal User Guide](platform/pal_baremetal/docs/Arm_SBSA_ACS_Bare-metal_User_Guide.pdf)
+  - [Baremetal Code](platform/pal_baremetal/)
 
 ## Security implication
 Arm Enterprise ACS test suite may run at higher privilege level. An attacker may utilize these tests as a means to elevate privilege which can potentially reveal the platform security assets. To prevent the leakage of secure information, it is strongly recommended that the ACS test suite is run only on development platforms. If it is run on production systems, the system should be scrubbed after running the test suite.

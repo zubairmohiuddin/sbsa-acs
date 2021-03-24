@@ -1,5 +1,5 @@
 /** @file
- * Copyright (c) 2020, Arm Limited or its affiliates. All rights reserved.
+ * Copyright (c) 2020-2021, Arm Limited or its affiliates. All rights reserved.
  * SPDX-License-Identifier : Apache-2.0
 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -52,21 +52,24 @@
 #define PLATFORM_OVERRIDE_PE7_PMU_GSIV  0x17
 
 /* GIC platform config parameters*/
-#define PLATFORM_OVERRIDE_GIC_VERSION   0x3
-#define PLATFORM_OVERRIDE_CORE_COUNT    0x4
-#define PLATFORM_OVERRIDE_CLUSTER_COUNT 0x2
-#define PLATFORM_OVERRIDE_GICC_COUNT    (PLATFORM_OVERRIDE_CORE_COUNT * PLATFORM_OVERRIDE_CLUSTER_COUNT)
-#define PLATFORM_OVERRIDE_GICD_COUNT    0x1
-#define PLATFORM_OVERRIDE_GICRD_COUNT   0x0
-#define PLATFORM_OVERRIDE_GICITS_COUNT  0x1
-#define PLATFORM_OVERRIDE_GICC_TYPE     0x1000
-#define PLATFORM_OVERRIDE_GICD_TYPE     0x1001
-#define PLATFORM_OVERRIDE_GICRD_TYPE    0x0
-#define PLATFORM_OVERRIDE_GICITS_TYPE   0x1003
-#define PLATFORM_OVERRIDE_GICC_BASE     0x30000000
-#define PLATFORM_OVERRIDE_GICD_BASE     0x30000000
-#define PLATFORM_OVERRIDE_GICRD_BASE    0x0
-#define PLATFORM_OVERRIDE_GICITS_BASE   0x30040000
+#define PLATFORM_OVERRIDE_GIC_VERSION      0x3
+#define PLATFORM_OVERRIDE_CORE_COUNT       0x4
+#define PLATFORM_OVERRIDE_CLUSTER_COUNT    0x2
+#define PLATFORM_OVERRIDE_GICC_COUNT       (PLATFORM_OVERRIDE_CORE_COUNT * PLATFORM_OVERRIDE_CLUSTER_COUNT)
+#define PLATFORM_OVERRIDE_GICD_COUNT       0x1
+#define PLATFORM_OVERRIDE_GICRD_COUNT      0x1
+#define PLATFORM_OVERRIDE_GICITS_COUNT     0x1
+#define PLATFORM_OVERRIDE_GICC_TYPE        0x1000
+#define PLATFORM_OVERRIDE_GICD_TYPE        0x1001
+#define PLATFORM_OVERRIDE_GICC_GICRD_TYPE  0x1002
+#define PLATFORM_OVERRIDE_GICR_GICRD_TYPE  0x1003
+#define PLATFORM_OVERRIDE_GICITS_TYPE      0x1004
+#define PLATFORM_OVERRIDE_GICC_BASE        0x30000000
+#define PLATFORM_OVERRIDE_GICD_BASE        0x30000000
+#define PLATFORM_OVERRIDE_GICRD_BASE       0x300C0000
+#define PLATFORM_OVERRIDE_GICITS_BASE      0x30040000
+#define PLATFORM_OVERRIDE_GICITS_ID        0
+#define PLATFORM_OVERRIDE_GICIRD_LENGTH    (0x20000*8)
 
 /*
  *Secure EL1 timer Flags, Non-Secure EL1 timer Flags, EL2 timer Flags,
@@ -157,7 +160,8 @@
 
 /* PCIE device hierarchy table */
 
-#define PLATFORM_PCIE_NUM_ENTRIES     21
+#define PLATFORM_PCIE_NUM_ENTRIES        21
+#define PLATFORM_PCIE_P2P_NOT_SUPPORTED  1
 
 #define PLATFORM_PCIE_DEV0_CLASSCODE  0x6040000
 #define PLATFORM_PCIE_DEV0_VENDOR_ID  0xABC
@@ -353,15 +357,17 @@
 #define PERIPHERAL0_P2P_SUPPORT     1
 #define PERIPHERAL0_DMA_64BIT       0
 #define PERIPHERAL0_BEHIND_SMMU     1
+#define PERIPHERAL0_ATC_SUPPORT     0
 #define PERIPHERAL1_DMA_SUPPORT     1
 #define PERIPHERAL1_DMA_COHERENT    1
 #define PERIPHERAL1_P2P_SUPPORT     1
 #define PERIPHERAL1_DMA_64BIT       0
 #define PERIPHERAL1_BEHIND_SMMU     1
+#define PERIPHERAL1_ATC_SUPPORT     0
 
 /* IOVIRT platform config parameters */
 #define IOVIRT_ADDRESS               0xF9780000
-#define NODE_COUNT                   2
+#define IORT_NODE_COUNT              3
 #define IOVIRT_ITS_COUNT             1
 #define IOVIRT_SMMUV3_BASE_ADDRESS   0x4F000000
 #define IOVIRT_SMMU_CTX_INT_OFFSET   0x0
@@ -369,12 +375,24 @@
 #define IOVIRT_RC_PCI_SEG_NUM        0x0
 #define IOVIRT_RC_MEMORY_PROPERTIES  0x1
 #define IOVIRT_RC_ATS_ATTRIBUTE      0x0
+
 #define RC_MAP0_INPUT_BASE           0x0
 #define RC_MAP0_ID_COUNT             0xFFFF
 #define RC_MAP0_OUTPUT_BASE          0x0
-#define RC_MAP0_OUTPUT_REF           0x48
+#define RC_MAP0_OUTPUT_REF           0x134
+
+#define SMMUV3_ID_MAP0_INPUT_BASE    0x0
+#define SMMUV3_ID_MAP0_ID_COUNT      0xFFFF
+#define SMMUV3_ID_MAP0_OUTPUT_BASE   0x0
+#define SMMUV3_ID_MAP0_OUTPUT_REF    0x30
+#define SMMUV3_ID_MAP1_INPUT_BASE    0x0
+#define SMMUV3_ID_MAP1_ID_COUNT      0x1
+#define SMMUV3_ID_MAP1_OUTPUT_BASE   0x10000
+#define SMMUV3_ID_MAP1_OUTPUT_REF    0x30
+
 #define IOVIRT_RC_NUM_MAP            1
-#define IOVIRT_MAX_NUM_MAP           1
+#define IOVIRT_SMMUV3_NUM_MAP        2
+#define IOVIRT_MAX_NUM_MAP           3
 
 /* DMA platform config parameters */
 #define PLATFORM_OVERRIDE_DMA_CNT   0
@@ -393,11 +411,13 @@ typedef struct {
   uint32_t gicc_type;
   uint32_t gicd_type;
   uint32_t gicrd_type;
+  uint32_t gicrd_length;
   uint32_t gicits_type;
   uint64_t gicc_base[PLATFORM_OVERRIDE_GICC_COUNT];
   uint64_t gicd_base[PLATFORM_OVERRIDE_GICD_COUNT];
   uint64_t gicrd_base[PLATFORM_OVERRIDE_GICRD_COUNT];
   uint64_t gicits_base[PLATFORM_OVERRIDE_GICITS_COUNT];
+  uint64_t gicits_id[PLATFORM_OVERRIDE_GICITS_COUNT];
 } PLATFORM_OVERRIDE_GIC_INFO_TABLE;
 
 typedef struct {
@@ -469,9 +489,9 @@ typedef struct {
 typedef struct {
   uint64_t Address;
   uint32_t node_count;
-  uint32_t type[NODE_COUNT];
-  uint32_t num_map[NODE_COUNT];
-  PLATFORM_OVERRIDE_NODE_DATA_MAP map[NODE_COUNT];
+  uint32_t type[IORT_NODE_COUNT];
+  uint32_t num_map[IORT_NODE_COUNT];
+  PLATFORM_OVERRIDE_NODE_DATA_MAP map[IORT_NODE_COUNT];
 } PLATFORM_OVERRIDE_IOVIRT_INFO_TABLE;
 
 typedef struct {
@@ -481,6 +501,7 @@ typedef struct {
   uint32_t p2p_support;
   uint32_t dma_64bit;
   uint32_t behind_smmu;
+  uint32_t atc_present;
 } PLATFORM_PCIE_PERIPHERAL_INFO_BLOCK;
 
 typedef struct {

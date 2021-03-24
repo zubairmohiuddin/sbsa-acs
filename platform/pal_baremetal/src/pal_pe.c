@@ -1,5 +1,5 @@
 /** @file
- * Copyright (c) 2020 Arm Limited or its affiliates. All rights reserved.
+ * Copyright (c) 2020-2021 Arm Limited or its affiliates. All rights reserved.
  * SPDX-License-Identifier : Apache-2.0
 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +20,8 @@
 #include "include/platform_override_fvp.h"
 
 extern PE_INFO_TABLE platform_pe_cfg;
+extern PE_INFO_TABLE *g_pe_info_table;
+
 uint8_t   *gSecondaryPeStack;
 uint64_t  gMpidrMax;
 
@@ -286,4 +288,18 @@ pal_pe_data_cache_ops_by_va(uint64_t addr, uint32_t type)
           DataCacheCleanInvalidateVA(addr);
   }
 
+}
+
+/**
+  @brief Returns the number of currently present PEs
+
+  @return  The number of PEs that are present in the system
+**/
+uint32_t
+pal_pe_get_num()
+{
+  if (g_pe_info_table == NULL) {
+      return 0;
+  }
+  return g_pe_info_table->header.num_of_pe;
 }

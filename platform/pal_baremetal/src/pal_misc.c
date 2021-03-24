@@ -1,5 +1,5 @@
 /** @file
- * Copyright (c) 2020, Arm Limited or its affiliates. All rights reserved.
+ * Copyright (c) 2020-2021, Arm Limited or its affiliates. All rights reserved.
  * SPDX-License-Identifier : Apache-2.0
 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -348,7 +348,7 @@ pal_mem_allocate_shared(uint32_t num_pe, uint32_t sizeofentry)
   @param  Pa:   physical address of the allocated memory
 **/
 void *
-pal_mem_alloc_coherent(uint32_t Bdf, uint32_t Size, void *Pa)
+pal_mem_alloc_cacheable(uint32_t Bdf, uint32_t Size, void **Pa)
 {
   return NULL;
 }
@@ -362,7 +362,7 @@ pal_mem_alloc_coherent(uint32_t Bdf, uint32_t Size, void *Pa)
   @param  Pa:   physical address of the memory to be freed
 **/
 void
-pal_mem_free_coherent(uint32_t Bdf, uint32_t Size, void *Va, void *Pa)
+pal_mem_free_cacheable(uint32_t Bdf, uint32_t Size, void *Va, void *Pa)
 {
 
 }
@@ -451,7 +451,7 @@ pal_mem_page_size()
 void *
 pal_mem_alloc_pages (uint32_t NumPages)
 {
-   return 0;
+  return 0;
 }
 
 /**

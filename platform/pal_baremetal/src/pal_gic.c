@@ -1,5 +1,5 @@
 /** @file
- * Copyright (c) 2020, Arm Limited or its affiliates. All rights reserved.
+ * Copyright (c) 2020-2021, Arm Limited or its affiliates. All rights reserved.
  * SPDX-License-Identifier : Apache-2.0
 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,8 +50,9 @@ pal_gic_create_info_table(GIC_INFO_TABLE *GicTable)
   }
 
   for (Index = 0; Index < platform_gic_cfg.num_gicrd; Index++) {
-    GicTable->gic_info[InfoIndex].type   = PLATFORM_OVERRIDE_GICRD_TYPE;
-    GicTable->gic_info[InfoIndex++].base = platform_gic_cfg.gicrd_base[Index];
+    GicTable->gic_info[InfoIndex].type     = PLATFORM_OVERRIDE_GICR_GICRD_TYPE;
+    GicTable->gic_info[InfoIndex].base     = platform_gic_cfg.gicrd_base[Index];
+    GicTable->gic_info[InfoIndex++].length = platform_gic_cfg.gicrd_length;
   }
 
   for (Index = 0; Index < platform_gic_cfg.num_gicd; Index++) {
@@ -60,8 +61,9 @@ pal_gic_create_info_table(GIC_INFO_TABLE *GicTable)
   }
 
   for (Index = 0; Index < platform_gic_cfg.num_gicits; Index++) {
-    GicTable->gic_info[InfoIndex].type   = PLATFORM_OVERRIDE_GICITS_TYPE;
-    GicTable->gic_info[InfoIndex++].base = platform_gic_cfg.gicits_base[Index];
+    GicTable->gic_info[InfoIndex].type     = PLATFORM_OVERRIDE_GICITS_TYPE;
+    GicTable->gic_info[InfoIndex].base     = platform_gic_cfg.gicits_base[Index];
+    GicTable->gic_info[InfoIndex++].its_id = platform_gic_cfg.gicits_id[Index];
   }
 
   GicTable->gic_info[InfoIndex].type = 0xFF;  //Indicate end of data
@@ -107,71 +109,6 @@ pal_gic_end_of_interrupt(uint32_t int_id)
   return 0;
 }
 
-/**
-  @brief   Creates the MSI mappings for an LPI with Interrupt ID "IntID"
-           in ITS Tables and assigns the msi_addr and msi_data.
-
-  @param   bdf : Bus, Devie endpoint.
-  @param   IntID : LPI Interrupt ID.
-  @param   msi_index : MSI index in MSI table.
-  @param   *msi_addr : MSI Address.
-  @param   *msi_data : MSI Data.
-
-  @return  Status 0 if Success
-**/
-uint32_t
-pal_gic_request_msi (
-  uint32_t    bdf,
-  uint32_t    IntID,
-  uint32_t    msi_index
-  )
-{
-    return 0xFFFFFFFF;
-}
-
-/**
-  @brief  Delete the MSI mappings for an LPI with Interrupt ID "IntID"
-          from the ITS Tables.
-
-  @param  Bdf : PCIe bus, device, function.
-  @param  IntID : LPI Interrupt ID.
-  @param  msi_index : MSI index in MSI table.
-
-**/
-void
-pal_gic_free_msi (
-  uint32_t    bdf,
-  uint32_t    IntID,
-  uint32_t    msi_index
-  )
-{
-  /** Place holder**/
-}
-
-/**
- @brief This API will return the maximum LPI ID supported.
-
-**/
-uint32_t
-pal_gic_get_max_lpi_id (
-  )
-{
-  return 0;
-}
-
-/**
-  @brief Configures the ITS, Allocates the memory for different 
-         ITS Tables, LPI Configuration tables, Enables the ITS.
-
-**/
-uint32_t
-pal_gic_its_configure (
-  )
-{
-
-  /**Need to implement*/
-  return 0;
-}
 
 /**
  @Registers the interrupt handler for a given IRQ.

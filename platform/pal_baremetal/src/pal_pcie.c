@@ -1,5 +1,5 @@
 /** @file
- * Copyright (c) 2020, Arm Limited or its affiliates. All rights reserved.
+ * Copyright (c) 2020-2021, Arm Limited or its affiliates. All rights reserved.
  * SPDX-License-Identifier : Apache-2.0
 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -494,27 +494,41 @@ pal_pcie_get_dma_coherent(uint32_t seg, uint32_t bus, uint32_t dev, uint32_t fn)
 }
 
 /**
+  @brief   This API checks the PCIe hierarchy fo P2P support
+           1. Caller       -  Test Suite
+  @return  1 - P2P feature not supported 0 - P2P feature supported
+**/
+uint32_t
+pal_pcie_p2p_support(void)
+{
+  // This API checks the PCIe hierarchy for P2P support as defined
+  // in the PCIe platform configuration
+
+  return PLATFORM_PCIE_P2P_NOT_SUPPORTED;
+
+}
+
+/**
   @brief   This API checks the PCIe device P2P support
            1. Caller       -  Test Suite
   @param   bdf      - PCIe BUS/Device/Function
   @return  1 - P2P feature not supported 0 - P2P feature supported
 **/
 uint32_t
-pal_pcie_p2p_support(uint32_t seg, uint32_t bus, uint32_t dev, uint32_t fn)
+pal_pcie_dev_p2p_support(uint32_t seg, uint32_t bus, uint32_t dev, uint32_t fn)
 {
-  uint32_t bdf,i;
+  uint32_t bdf, i;
 
   bdf = PCIE_CREATE_BDF(seg, bus, dev, fn);
-  for (i = 0 ; i < g_peripheral_info_table->header.num_all; i++)
+  for (i = 0; i < g_peripheral_info_table->header.num_all; i++)
   {
-      if (bdf == platform_pcie_peripheral_cfg.info[i].bdf)
-      {
-            return platform_pcie_peripheral_cfg.info[i].p2p_support;
-      }
+    if (bdf == platform_pcie_peripheral_cfg.info[i].bdf)
+    {
+      return platform_pcie_peripheral_cfg.info[i].p2p_support;
+    }
   }
 
   return 1;
-
 }
 
 /**
@@ -548,6 +562,30 @@ pal_pcie_is_devicedma_64bit(uint32_t seg, uint32_t bus, uint32_t dev, uint32_t f
 uint32_t
 pal_get_msi_vectors(uint32_t Seg, uint32_t Bus, uint32_t Dev, uint32_t Fn, PERIPHERAL_VECTOR_LIST **MVector)
 {
+
+  return 0;
+}
+
+/**
+  @brief  This API checks if a PCIe device has an Address
+          Translation Cache or not.
+  @param   bdf      - PCIe BUS/Device/Function
+  @return  1 - Address translations cached 0 - Address translations not cached
+ **/
+uint32_t
+pal_pcie_is_cache_present(uint32_t seg, uint32_t bus, uint32_t dev, uint32_t fn)
+{
+  uint32_t bdf = PCIE_CREATE_BDF(seg, bus, dev, fn);
+
+  // Search for the device in the manufacturer data table
+  for (uint32_t i = 0; i < g_peripheral_info_table->header.num_all; i++)
+  {
+    if (bdf == platform_pcie_peripheral_cfg.info[i].bdf)
+    {
+          // read platform peripheral configuration to check if the bdf has an ATC
+          return platform_pcie_peripheral_cfg.info[i].atc_present;
+    }
+  }
 
   return 0;
 }
